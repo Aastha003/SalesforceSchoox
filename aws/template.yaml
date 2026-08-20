@@ -1,0 +1,64 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Schedules a periodic sync of Schoox learner training progress into
+  Salesforce Learner_Course__c records. Deployed with `sam deploy --guided`.
+
+Parameters:
+  SyncScheduleExpression:
+    Type: String
+    Default: rate(6 hours)
+    Description: How often to run the Schoox -> Salesforce sync.
+  SchooxAcademyId:
+    Type: String
+    Description: Schoox academy slug, e.g. AliSFTesting
+
+Resources:
+  SchooxApiSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: schoox-salesforce-sync/schoox-api
+      Description: Schoox API key. Populate the SecretString after deploy — never commit real values.
+      SecretString: '{"apiKey":"REPLACE_ME"}'
+
+  SalesforceAuthSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: schoox-salesforce-sync/salesforce-auth
+      Description: Salesforce Connected App client-credentials. Populate after deploy.
+      SecretString: '{"loginUrl":"https://data-speed-169.my.salesforce.com","clientId":"REPLACE_ME","clientSecret":"REPLACE_ME"}'
+
+  SyncFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: sync-lambda/
+      Handler: index.handler
+      Runtime: nodejs20.x
+      Timeout: 300
+      MemorySize: 256
+      Environment:
+        Variables:
+          SCHOOX_SECRET_ID: !Ref SchooxApiSecret
+          SALESFORCE_SECRET_ID: !Ref SalesforceAuthSecret
+          SCHOOX_ACADEMY_ID: !Ref SchooxAcademyId
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action: secretsmanager:GetSecretValue
+              Resource:
+                - !Ref SchooxApiSecret
+                - !Ref SalesforceAuthSecret
+      Events:
+        Scheduled:
+          Type: Schedule
+          Properties:
+            Schedule: !Ref SyncScheduleExpression
+            Description: Periodic Schoox -> Salesforce learner progress sync
+
+Outputs:
+  SyncFunctionName:
+    Value: !Ref SyncFunction
+  SchooxSecretArn:
+    Value: !Ref SchooxApiSecret
+  SalesforceSecretArn:
+    Value: !Ref SalesforceAuthSecret

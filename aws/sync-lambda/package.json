@@ -1,0 +1,10 @@
+{
+  "name": "schoox-salesforce-sync",
+  "version": "0.1.0",
+  "description": "Scheduled Lambda that pulls learner training progress from Schoox and upserts it into Salesforce as Learner_Course__c records.",
+  "main": "index.js",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=18"
+  }
+}

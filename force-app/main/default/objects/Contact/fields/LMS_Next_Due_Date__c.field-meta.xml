@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>LMS_Next_Due_Date__c</fullName>
+    <label>LMS Next Due Date</label>
+    <type>Date</type>
+    <description>Earliest due date among this learner's incomplete courses.</description>
+</CustomField>

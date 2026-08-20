@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>LMS_Estimated_Hours_Remaining__c</fullName>
+    <label>LMS Estimated Hours Remaining</label>
+    <type>Number</type>
+    <precision>6</precision>
+    <scale>1</scale>
+    <description>Sum of estimated remaining hours across all in-progress/not-started courses.</description>
+</CustomField>

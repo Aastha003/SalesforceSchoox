@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>LMS_Courses_Enrolled__c</fullName>
+    <label>LMS Courses Enrolled</label>
+    <type>Number</type>
+    <precision>4</precision>
+    <scale>0</scale>
+    <description>Total Schoox courses this learner is enrolled in.</description>
+</CustomField>
