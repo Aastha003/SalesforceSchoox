@@ -1,8 +1,9 @@
-# Learner Progress Prototype — Schoox → AWS → Salesforce
+# SalesforceSchoox
 
-Syncs each learner's Schoox LMS course progress (courses completed, in
-progress, estimated time remaining, learning history) into Salesforce so it's
-visible directly on the learner's Contact record.
+Schoox integration for Salesforce — a prototype that syncs each learner's
+Schoox LMS course progress (courses completed, in progress, estimated time
+remaining, learning history) into Salesforce so it's visible directly on the
+learner's Contact record.
 
 ## Architecture
 
