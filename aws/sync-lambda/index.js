@@ -13,6 +13,7 @@ exports.handler = async () => {
   ]);
 
   const users = await schoox.listUsers(schooxSecret.apiKey);
+  const transcripts = await schoox.buildLearnerTranscripts(schooxSecret.apiKey);
 
   let synced = 0;
   let skipped = 0;
@@ -27,8 +28,8 @@ exports.handler = async () => {
         continue;
       }
 
-      const transcript = await schoox.getUserTranscript(schooxSecret.apiKey, user.id);
-      const summary = buildContactLmsSummary(transcript);
+      const courseEntries = transcripts.get(user.id) || [];
+      const summary = buildContactLmsSummary(courseEntries);
       await sf.updateContactLmsSummary(sfSecret, contactId, summary);
       synced++;
     } catch (err) {

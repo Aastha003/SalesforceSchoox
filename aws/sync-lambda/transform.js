@@ -38,8 +38,8 @@ function buildContactLmsSummary(transcriptEntries) {
     }
 
     percentSum += percentComplete;
-    const dueStr = entry.due_date ? entry.due_date.slice(0, 10) : "no due date";
-    historyLines.push(`${entry.course_name} — ${status} (${percentComplete}%, due ${dueStr})`);
+    const dueStr = entry.due_date ? `due ${entry.due_date.slice(0, 10)}` : "no due date";
+    historyLines.push(`${entry.course_name} — ${status} (${percentComplete}%, ${dueStr})`);
   }
 
   const count = transcriptEntries.length;

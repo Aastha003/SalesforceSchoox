@@ -45,13 +45,25 @@ a Developer Edition org is used instead), this can be revisited as a proper
 child object with a related list — the AWS Lambda's `transform.js` is the
 only place that would need to change.
 
+### Schoox API — verified request format
+
+The Schoox API is at `https://api.schoox.com/v1`, not `www.schoox.com` (that
+resolves to their marketing site and 404s). Every request needs:
+
+- Header `X-Api-Key: <academy API key>`
+- Query parameter `acadId=<numeric academy id>` — the **numeric** id (e.g.
+  `2024692081` for AliSFTesting), not the academy slug used in portal URLs.
+
+There is no single "get a user's transcript with progress" endpoint. Per-course
+progress instead comes from `GET /v1/courses/{courseId}/students`, which
+returns each enrolled learner's `time_enrolled`, `progress` (%), time spent,
+and `certificates`. `schooxClient.js` iterates `GET /v1/courses` and pivots
+each course's student roster into a per-learner transcript.
+
 ## Prerequisites (must happen before this can run for real)
 
-1. **Schoox API access** — not yet obtained. Request API credentials from
-   Schoox (Settings → API, or your Schoox account rep) for the `AliSFTesting`
-   academy. Once you have the docs, confirm the exact endpoint paths and
-   response shape and adjust `aws/sync-lambda/schooxClient.js` — its current
-   paths are a best-effort scaffold, not verified against real Schoox docs.
+1. **Schoox API access** — obtained. Academy API key + numeric academy id for
+   `AliSFTesting`, used as described above.
 2. **Salesforce External Client App** — created in `data-speed-169`,
    configured for OAuth 2.0 Client Credentials Flow, with **"Issue JSON Web
    Token (JWT)-based access tokens" disabled** (required for Metadata/SOAP
@@ -107,9 +119,15 @@ placeholders on purpose so nothing sensitive ever lives in this repo.
 - [x] Connectivity to Salesforce, Schoox, and AWS confirmed reachable
 - [x] Salesforce `LMS_*` fields deployed to `Contact` in `data-speed-169`
 - [x] Permission set deployed and assigned to the integration (Run-As) user
-- [x] Verified: fields are queryable via the Salesforce REST API
-- [x] AWS sync Lambda + schedule scaffolded, updated for the Contact-summary model
-- [ ] Schoox API credentials (blocked — needs to be requested from Schoox)
-- [ ] Schoox endpoint paths/response shape verified against real docs
-- [ ] AWS Lambda deployed (`sam deploy`) with real Secrets Manager values
-- [ ] End-to-end test with real learner data
+- [x] Contact page layout updated with "Learning Progress" / "Learning History" sections
+- [x] Schoox API credentials obtained and verified working (`X-Api-Key` + `acadId`)
+- [x] `schooxClient.js` rewritten and confirmed against the live academy
+- [x] **End-to-end sync run with real data** — Contacts for `caastha03@gmail.com`
+      and `mamtha@umiuscreative.com` now carry live Schoox progress
+- [ ] AWS Lambda deployed (`sam deploy`) with real Secrets Manager values —
+      the sync above was run as a local script reusing the same Lambda
+      modules, not via a deployed Lambda yet
+- [ ] Remaining learners (`shankusha19@gmail.com`, `feroze@umiuscreative.com`,
+      `a.zaheer@schoox.com`) have no matching Salesforce Contact (missing
+      Email field, or no Contact at all) — sync will pick them up automatically
+      once those Contacts exist with matching emails
