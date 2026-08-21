@@ -102,6 +102,8 @@ sf org assign permset --name Learner_Course_Access --target-org learner-prototyp
 
 ## Deploy — AWS
 
+With the SAM CLI:
+
 ```bash
 aws sso login --profile <your-profile>
 cd aws
@@ -109,10 +111,50 @@ sam build
 sam deploy --guided --profile <your-profile>
 ```
 
+Without the SAM CLI (plain AWS CLI — CloudFormation supports the SAM
+transform natively, this is what was actually used to deploy the live stack):
+
+```bash
+aws sso login --profile <your-profile>
+export AWS_PROFILE=<your-profile>
+
+aws s3api create-bucket --bucket <artifact-bucket> --region <region>
+
+aws cloudformation package \
+  --template-file aws/template.yaml \
+  --s3-bucket <artifact-bucket> \
+  --output-template-file /tmp/packaged-template.yaml \
+  --region <region>
+
+aws cloudformation deploy \
+  --template-file /tmp/packaged-template.yaml \
+  --stack-name schoox-salesforce-sync \
+  --capabilities CAPABILITY_IAM \
+  --parameter-overrides SchooxAcademyId=<numeric academy id> \
+  --region <region>
+```
+
 After the first deploy, populate the two Secrets Manager entries
 (`schoox-salesforce-sync/schoox-api`, `schoox-salesforce-sync/salesforce-auth`)
 with real values via the AWS Console or CLI — the template seeds them with
-placeholders on purpose so nothing sensitive ever lives in this repo.
+placeholders on purpose so nothing sensitive ever lives in this repo:
+
+```bash
+aws secretsmanager put-secret-value \
+  --secret-id schoox-salesforce-sync/schoox-api \
+  --secret-string '{"apiKey":"<real Schoox API key>"}'
+
+aws secretsmanager put-secret-value \
+  --secret-id schoox-salesforce-sync/salesforce-auth \
+  --secret-string '{"loginUrl":"https://<org>.my.salesforce.com","clientId":"<consumer key>","clientSecret":"<consumer secret>"}'
+```
+
+Test it manually before waiting for the schedule:
+
+```bash
+aws lambda invoke --function-name <SyncFunctionName from stack outputs> /tmp/response.json
+cat /tmp/response.json
+```
 
 ## Status
 
@@ -124,10 +166,18 @@ placeholders on purpose so nothing sensitive ever lives in this repo.
 - [x] `schooxClient.js` rewritten and confirmed against the live academy
 - [x] **End-to-end sync run with real data** — Contacts for `caastha03@gmail.com`
       and `mamtha@umiuscreative.com` now carry live Schoox progress
-- [ ] AWS Lambda deployed (`sam deploy`) with real Secrets Manager values —
-      the sync above was run as a local script reusing the same Lambda
-      modules, not via a deployed Lambda yet
+- [x] **AWS Lambda deployed and running on a schedule** — CloudFormation stack
+      `schoox-salesforce-sync` in account `503561452191` (`us-east-1`), Lambda
+      `schoox-salesforce-sync-SyncFunction-XhESqwiur5xc`, EventBridge rule
+      `schoox-salesforce-sync-SyncFunctionScheduled-1SDThvAiwI1f` firing every
+      6 hours. Manually invoked once to confirm — `{"synced":2,"skipped":3,"failed":0}`
+      — and the `LMS_Last_Synced__c` timestamps on Salesforce match the
+      Lambda's CloudWatch log timestamps exactly, confirming the sync is
+      genuinely running from AWS, not a local script
 - [ ] Remaining learners (`shankusha19@gmail.com`, `feroze@umiuscreative.com`,
       `a.zaheer@schoox.com`) have no matching Salesforce Contact (missing
       Email field, or no Contact at all) — sync will pick them up automatically
       once those Contacts exist with matching emails
+- [ ] Real credentials (Schoox API key, Salesforce Consumer Key/Secret) were
+      typed in chat during setup — rotate them once the prototype is no
+      longer under active testing
