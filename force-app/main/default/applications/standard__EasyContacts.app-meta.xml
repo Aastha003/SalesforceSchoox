@@ -8,8 +8,6 @@
     <label>Contacts</label>
     <navType>Standard</navType>
     <tabs>standard-Contact</tabs>
-    <tabs>standard-Dashboard</tabs>
-    <tabs>standard-report</tabs>
     <uiType>Lightning</uiType>
     <utilityBar>EasyContacts_UtilityBar</utilityBar>
 </CustomApplication>
