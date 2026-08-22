@@ -56,6 +56,7 @@ async function buildLearnerTranscripts(apiKey) {
       const completedAt = student.certificates?.[0]?.time_certified || null;
       const entry = {
         course_name: course.title,
+        course_url: course.url || null,
         course_duration_minutes: Number(course.course_duration || 0) * 60,
         completion_percentage: student.progress ?? 0,
         enrolled_at: student.time_enrolled || null,
