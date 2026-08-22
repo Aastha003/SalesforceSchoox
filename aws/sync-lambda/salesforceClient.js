@@ -64,4 +64,4 @@ async function updateContactLmsSummary(sfCreds, contactId, summaryFields) {
   }
 }
 
-module.exports = { findContactIdByEmail, updateContactLmsSummary };
+module.exports = { getAccessToken, findContactIdByEmail, updateContactLmsSummary };

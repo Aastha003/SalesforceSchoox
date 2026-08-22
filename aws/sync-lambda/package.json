@@ -4,6 +4,9 @@
   "description": "Scheduled Lambda that pulls learner training progress from Schoox and upserts it into Salesforce as Learner_Course__c records.",
   "main": "index.js",
   "type": "commonjs",
+  "scripts": {
+    "verify:salesforce": "node scripts/verify-salesforce-connection.js"
+  },
   "engines": {
     "node": ">=18"
   }
