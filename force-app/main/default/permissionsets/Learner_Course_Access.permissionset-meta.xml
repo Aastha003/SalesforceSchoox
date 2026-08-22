@@ -2,6 +2,10 @@
 <PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
     <label>Learner Course Access</label>
     <description>Read access to synced Schoox learner training summary fields on Contact.</description>
+    <applicationVisibilities>
+        <application>standard__EasyContacts</application>
+        <visible>true</visible>
+    </applicationVisibilities>
     <fieldPermissions>
         <field>Contact.LMS_Courses_Enrolled__c</field>
         <readable>true</readable>
