@@ -34,4 +34,12 @@
         <field>Contact.LMS_Last_Synced__c</field>
         <readable>true</readable>
     </fieldPermissions>
+    <fieldPermissions>
+        <field>Contact.LMS_Active__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <field>Contact.LMS_Last_Completed_Date__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
 </PermissionSet>

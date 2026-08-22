@@ -181,3 +181,24 @@ cat /tmp/response.json
 - [ ] Real credentials (Schoox API key, Salesforce Consumer Key/Secret) were
       typed in chat during setup — rotate them once the prototype is no
       longer under active testing
+
+## Feature request tracking
+
+A feature list document was provided with items color-coded by status
+(green = done, yellow = needs clarification, orange = needs feasibility
+check, blue = needs to be built). Tracking against the **blue ("needs to be
+built")** items specifically:
+
+| Feature | Status |
+|---|---|
+| Completion Dates | ✅ Done — `LMS_Last_Completed_Date__c` field added |
+| Full list of LMS Users with active/inactive status | ✅ Done — `LMS_Active__c` field added, synced from Schoox's per-user `active` flag |
+| Up-to-date course enrollments & status sync | ✅ Done — confirmed via a live report showing current data, including a course-count change picked up automatically between syncs |
+| Latest Course master list sync | ✅ Done — `schooxClient.js` re-fetches the course catalog on every run |
+| Automatic syncs between Schoox and Salesforce can be scheduled | ✅ Done — EventBridge rule, `rate(6 hours)` |
+| Reports & Dashboards module in Salesforce | 🟡 Partial — a real Report (`LMS Learner Progress`, folder `LMS Reports`) is deployed and verified returning live data via the Analytics API; a Dashboard on top of it is not yet built |
+| Full Course master list with per-user assigned/completed/pending counts | ⛔ Needs a decision — a true course-level list needs its own object or list view; the org's Base Edition custom-object limit blocks a new object (see "Data model" above) |
+| Manual "sync now" buttons in Salesforce | ⛔ Needs new infra — the Lambda currently has no HTTP endpoint; this needs API Gateway in front of it plus a Salesforce button/Quick Action to call it |
+| Authorize specific Salesforce Users/Profiles to provision & enroll LMS users | ⛔ Needs new capability — the integration is currently **read-only** from Schoox; provisioning/enrollment would mean writing back to Schoox, which doesn't exist yet |
+| Native SF UI/UX polish | ⏸ Deferred — explicitly follow-on work once functionality is complete |
+| Learning Path enrollments/tracking | ⛔ Needs investigation — not yet explored against the Schoox API |

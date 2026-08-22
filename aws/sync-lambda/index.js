@@ -29,7 +29,7 @@ exports.handler = async () => {
       }
 
       const courseEntries = transcripts.get(user.id) || [];
-      const summary = buildContactLmsSummary(courseEntries);
+      const summary = buildContactLmsSummary(courseEntries, user.active);
       await sf.updateContactLmsSummary(sfSecret, contactId, summary);
       synced++;
     } catch (err) {

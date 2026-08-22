@@ -58,6 +58,10 @@
                 <behavior>Readonly</behavior>
                 <field>LMS_Overall_Percent_Complete__c</field>
             </layoutItems>
+            <layoutItems>
+                <behavior>Readonly</behavior>
+                <field>LMS_Active__c</field>
+            </layoutItems>
         </layoutColumns>
         <layoutColumns>
             <layoutItems>
@@ -67,6 +71,10 @@
             <layoutItems>
                 <behavior>Readonly</behavior>
                 <field>LMS_Next_Due_Date__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Readonly</behavior>
+                <field>LMS_Last_Completed_Date__c</field>
             </layoutItems>
             <layoutItems>
                 <behavior>Readonly</behavior>

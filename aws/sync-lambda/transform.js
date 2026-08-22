@@ -5,12 +5,13 @@
  * has no free custom-object slots for a proper per-course child object —
  * see README.md "Data model" for the trade-off.
  */
-function buildContactLmsSummary(transcriptEntries) {
+function buildContactLmsSummary(transcriptEntries, isActive = true) {
   let completed = 0;
   let inProgress = 0;
   let percentSum = 0;
   let hoursRemaining = 0;
   let nextDueDate = null;
+  let lastCompletedDate = null;
   const historyLines = [];
 
   for (const entry of transcriptEntries) {
@@ -23,6 +24,9 @@ function buildContactLmsSummary(transcriptEntries) {
     if (entry.completed_at) {
       status = "Completed";
       completed++;
+      if (!lastCompletedDate || new Date(entry.completed_at) > new Date(lastCompletedDate)) {
+        lastCompletedDate = entry.completed_at;
+      }
     } else {
       if (percentComplete > 0) {
         status = "In Progress";
@@ -51,6 +55,8 @@ function buildContactLmsSummary(transcriptEntries) {
     LMS_Overall_Percent_Complete__c: count ? Number((percentSum / count).toFixed(2)) : 0,
     LMS_Estimated_Hours_Remaining__c: Number(hoursRemaining.toFixed(1)),
     LMS_Next_Due_Date__c: nextDueDate ? nextDueDate.slice(0, 10) : null,
+    LMS_Last_Completed_Date__c: lastCompletedDate ? lastCompletedDate.slice(0, 10) : null,
+    LMS_Active__c: isActive,
     LMS_Learning_History__c: historyLines.join("\n").slice(0, 32768),
     LMS_Last_Synced__c: new Date().toISOString(),
   };
