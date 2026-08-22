@@ -55,9 +55,81 @@ Resources:
             Schedule: !Ref SyncScheduleExpression
             Description: Periodic Schoox -> Salesforce learner progress sync
 
+  DashboardWidgetFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: dashboard-widget/
+      Handler: index.handler
+      Runtime: nodejs20.x
+      Timeout: 30
+      MemorySize: 256
+      Environment:
+        Variables:
+          SALESFORCE_SECRET_ID: !Ref SalesforceAuthSecret
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action: secretsmanager:GetSecretValue
+              Resource: !Ref SalesforceAuthSecret
+
+  DashboardWidgetInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref DashboardWidgetFunction
+      Principal: cloudwatch.amazonaws.com
+
+  SyncDashboard:
+    Type: AWS::CloudWatch::Dashboard
+    Properties:
+      DashboardName: schoox-salesforce-sync
+      DashboardBody: !Sub |
+        {
+          "widgets": [
+            {
+              "type": "custom",
+              "x": 0, "y": 0, "width": 24, "height": 12,
+              "properties": {
+                "endpoint": "${DashboardWidgetFunction.Arn}",
+                "params": {},
+                "title": "Schoox Learner Progress (live, from Salesforce)",
+                "updateOn": { "refresh": true, "resize": false, "timeRange": false }
+              }
+            },
+            {
+              "type": "metric",
+              "x": 0, "y": 12, "width": 12, "height": 6,
+              "properties": {
+                "title": "Sync Lambda Invocations / Errors",
+                "view": "timeSeries",
+                "stacked": false,
+                "region": "${AWS::Region}",
+                "metrics": [
+                  [ "AWS/Lambda", "Invocations", "FunctionName", "${SyncFunction}", { "stat": "Sum" } ],
+                  [ "AWS/Lambda", "Errors", "FunctionName", "${SyncFunction}", { "stat": "Sum" } ]
+                ]
+              }
+            },
+            {
+              "type": "log",
+              "x": 12, "y": 12, "width": 12, "height": 6,
+              "properties": {
+                "title": "Latest Sync Results",
+                "region": "${AWS::Region}",
+                "query": "SOURCE '/aws/lambda/${SyncFunction}' | fields @timestamp, @message | filter @message like /Sync complete/ | sort @timestamp desc | limit 10",
+                "view": "table"
+              }
+            }
+          ]
+        }
+
 Outputs:
   SyncFunctionName:
     Value: !Ref SyncFunction
+  DashboardWidgetFunctionName:
+    Value: !Ref DashboardWidgetFunction
+  DashboardUrl:
+    Value: !Sub "https://${AWS::Region}.console.aws.amazon.com/cloudwatch/home?region=${AWS::Region}#dashboards:name=schoox-salesforce-sync"
   SchooxSecretArn:
     Value: !Ref SchooxApiSecret
   SalesforceSecretArn:

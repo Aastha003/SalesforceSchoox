@@ -1,0 +1,10 @@
+{
+  "name": "schoox-sync-dashboard-widget",
+  "version": "0.1.0",
+  "description": "CloudWatch custom widget rendering live Schoox learner status + course links, tied to the schoox-salesforce-sync Lambda's dashboard.",
+  "main": "index.js",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=18"
+  }
+}
