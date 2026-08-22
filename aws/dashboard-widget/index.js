@@ -56,7 +56,8 @@ async function fetchLearners(creds) {
   const { access_token, instance_url } = await getSalesforceToken(creds);
   const soql =
     "SELECT Name, Email, LMS_Active__c, LMS_Courses_Enrolled__c, LMS_Courses_Completed__c, " +
-    "LMS_Overall_Percent_Complete__c, LMS_Learning_History__c, LMS_Last_Synced__c " +
+    "LMS_Courses_In_Progress__c, LMS_Overall_Percent_Complete__c, LMS_Estimated_Hours_Remaining__c, " +
+    "LMS_Next_Due_Date__c, LMS_Last_Completed_Date__c, LMS_Learning_History__c, LMS_Last_Synced__c " +
     "FROM Contact WHERE LMS_Last_Synced__c != null ORDER BY Name";
   const url = `${instance_url}/services/data/v60.0/query?q=${encodeURIComponent(soql)}`;
   const res = await fetch(url, { headers: { Authorization: `Bearer ${access_token}` } });
@@ -85,7 +86,12 @@ function renderHtml(learners) {
       <td>${escapeHtml(c.Email)}</td>
       <td>${activeBadge}</td>
       <td>${c.LMS_Courses_Completed__c ?? 0} / ${c.LMS_Courses_Enrolled__c ?? 0}</td>
+      <td>${c.LMS_Courses_In_Progress__c ?? 0}</td>
       <td>${c.LMS_Overall_Percent_Complete__c ?? 0}%</td>
+      <td>${c.LMS_Estimated_Hours_Remaining__c ?? 0}</td>
+      <td>${escapeHtml(c.LMS_Next_Due_Date__c) || "—"}</td>
+      <td>${escapeHtml(c.LMS_Last_Completed_Date__c) || "—"}</td>
+      <td>${escapeHtml(c.LMS_Last_Synced__c) || "—"}</td>
       <td>${courseLinks || "—"}</td>
     </tr>`;
   }).join("");
@@ -93,7 +99,7 @@ function renderHtml(learners) {
   return `
     <style>
       table.schoox-widget { width: 100%; border-collapse: collapse; font-size: 13px; }
-      table.schoox-widget th { text-align: left; background: #232f3e; color: #fff; padding: 6px 8px; }
+      table.schoox-widget th { text-align: left; background: #232f3e; color: #fff; padding: 6px 8px; white-space: nowrap; }
       table.schoox-widget td { padding: 6px 8px; border-bottom: 1px solid #ddd; vertical-align: top; }
       table.schoox-widget tr:nth-child(even) { background: #f7f7f7; }
     </style>
@@ -101,7 +107,9 @@ function renderHtml(learners) {
       <thead>
         <tr>
           <th>Learner</th><th>Email</th><th>Schoox Status</th>
-          <th>Completed</th><th>% Complete</th><th>Courses (Schoox link)</th>
+          <th>Completed</th><th>In Progress</th><th>% Complete</th>
+          <th>Hrs Remaining</th><th>Next Due</th><th>Last Completed</th><th>Last Synced</th>
+          <th>Courses (Schoox link)</th>
         </tr>
       </thead>
       <tbody>${rows}</tbody>
