@@ -54,6 +54,13 @@ Resources:
           Properties:
             Schedule: !Ref SyncScheduleExpression
             Description: Periodic Schoox -> Salesforce learner progress sync
+      FunctionUrlConfig:
+        AuthType: NONE
+        Cors:
+          AllowOrigins:
+            - "*"
+          AllowMethods:
+            - GET
 
   DashboardWidgetFunction:
     Type: AWS::Serverless::Function
@@ -124,6 +131,9 @@ Resources:
         }
 
 Outputs:
+  SyncNowUrl:
+    Description: Unauthenticated URL that triggers an on-demand sync when opened (e.g. from a Salesforce Custom Button).
+    Value: !GetAtt SyncFunctionUrl.FunctionUrl
   SyncFunctionName:
     Value: !Ref SyncFunction
   DashboardWidgetFunctionName:
