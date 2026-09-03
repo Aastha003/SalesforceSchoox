@@ -54,6 +54,11 @@ async function buildLearnerTranscripts(apiKey) {
     const students = await getCourseStudents(apiKey, course.id);
     for (const student of students) {
       const completedAt = student.certificates?.[0]?.time_certified || null;
+      const steps = (course.course_steps || [])
+        .map((s) => `${s.step_type}: ${s.step_name}`)
+        .join("; ");
+      const description = (course.description || "").replace(/<[^>]+>/g, "").trim();
+
       const entry = {
         course_name: course.title,
         course_url: course.url || null,
@@ -62,6 +67,8 @@ async function buildLearnerTranscripts(apiKey) {
         enrolled_at: student.time_enrolled || null,
         completed_at: completedAt,
         due_date: null, // Schoox academy-level courses in this org have no due date; job-training assignments would carry one separately.
+        course_description: description || null,
+        course_lectures: steps || null, // best-effort: Schoox's API exposes only lecture step type/name, never actual lecture content.
       };
       if (!transcripts.has(student.id)) transcripts.set(student.id, []);
       transcripts.get(student.id).push(entry);

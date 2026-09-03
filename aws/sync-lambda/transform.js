@@ -44,7 +44,10 @@ function buildContactLmsSummary(transcriptEntries, isActive = true) {
     percentSum += percentComplete;
     const dueStr = entry.due_date ? `due ${entry.due_date.slice(0, 10)}` : "no due date";
     const urlStr = entry.course_url ? ` — ${entry.course_url}` : "";
-    historyLines.push(`${entry.course_name} — ${status} (${percentComplete}%, ${dueStr})${urlStr}`);
+    let line = `${entry.course_name} — ${status} (${percentComplete}%, ${dueStr})${urlStr}`;
+    if (entry.course_description) line += `\n    Description: ${entry.course_description}`;
+    if (entry.course_lectures) line += `\n    Lectures: ${entry.course_lectures}`;
+    historyLines.push(line);
   }
 
   const count = transcriptEntries.length;
